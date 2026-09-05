@@ -1,4 +1,5 @@
 import pygame
+import random
 
 
 def main():
@@ -31,6 +32,9 @@ def main():
                         elif tile.selected:
                             tile.selected = False
                             selected_count -= 1
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_TAB:
+                    random.shuffle(grid.tiles)
 
         for tile in grid.tiles:
             tile.hovered = tile.rect.collidepoint(pygame.mouse.get_pos())
@@ -51,9 +55,9 @@ def main():
 
 
 class Tile:
-    def __init__(self) -> None:
+    def __init__(self, text) -> None:
         self.box_size = 96
-        self.text = "TEXT"
+        self.text = text
         # color picked to match NYT connections
         self.hovered_color = "#DDDDD6"
         self.base_color = "#EEEEE6"
@@ -98,7 +102,7 @@ class Tile:
 
 class Grid:
     def __init__(self) -> None:
-        self.tiles = [Tile() for _ in range(16)]
+        self.tiles = [Tile(f"TEXT {i}") for i in range(16)]
         self.grid_spacing = 10
         self.size = (
             4 * (self.tiles[0].box_size + self.grid_spacing),

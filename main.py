@@ -20,36 +20,49 @@ def main():
     grid = Grid()
     shuffle_button = Button("Shuffle")
     deselect_button = Button("Deselect All")
+    submit_button = Button("Submit")
 
-    selected_count = 0
+    buttons = [shuffle_button, deselect_button, submit_button]
+
+    def shuffle_tiles():
+        random.shuffle(grid.tiles)
+
+    def deselect_all():
+        for tile in grid.tiles:
+            tile.selected = False
+
+    def submit():
+        submitted_tiles = [tile.text for tile in grid.tiles if tile.selected]
+        if len(submitted_tiles) == 4:
+            print(f"submitted {submitted_tiles}")
+
+    shuffle_button.connect(shuffle_tiles)
+    deselect_button.connect(deselect_all)
+    submit_button.connect(submit)
+
     while running:
+        selected_tiles_count = 0
+        for tile in grid.tiles:
+            if tile.selected:
+                selected_tiles_count += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for tile in grid.tiles:
                     if tile.rect.collidepoint(pygame.mouse.get_pos()):
-                        if not tile.selected and selected_count < 4:
+                        if not tile.selected and selected_tiles_count < 4:
                             tile.selected = True
-                            selected_count += 1
                         elif tile.selected:
                             tile.selected = False
-                            selected_count -= 1
-                if shuffle_button.rect.collidepoint(pygame.mouse.get_pos()):
-                    random.shuffle(grid.tiles)
-                if deselect_button.rect.collidepoint(pygame.mouse.get_pos()):
-                    for tile in grid.tiles:
-                        tile.selected = False
-                        selected_count = 0
+                for button in buttons:
+                    if button.rect.collidepoint(pygame.mouse.get_pos()):
+                        button.callback()
 
         for tile in grid.tiles:
             tile.hovered = tile.rect.collidepoint(pygame.mouse.get_pos())
-        shuffle_button.hovered = shuffle_button.rect.collidepoint(
-            pygame.mouse.get_pos()
-        )
-        deselect_button.hovered = deselect_button.rect.collidepoint(
-            pygame.mouse.get_pos()
-        )
+        for button in buttons:
+            button.hovered = button.rect.collidepoint(pygame.mouse.get_pos())
 
         screen.fill("#FFFFFF")
         screen.blit(connections_text, connections_text.get_rect(topleft=(32, 32)))
@@ -62,6 +75,7 @@ def main():
         )
         shuffle_button.draw(screen, 400, 600)
         deselect_button.draw(screen, 600, 600)
+        submit_button.draw(screen, 800, 600)
 
         pygame.display.flip()
 
@@ -81,6 +95,7 @@ class Tile:
         self.rect = pygame.Rect()
         self.selected = False
         self.hovered = False
+        self.callback = None
 
     def draw(self, surface, x: int, y: int) -> None:
         self.rect = pygame.Rect(x, y, self.box_size, self.box_size)
@@ -144,6 +159,9 @@ class Button:
                 y + (self.height - text.get_height()) // 2,
             ),
         )
+
+    def connect(self, callback: callable):
+        self.callback = callback
 
 
 class Grid:

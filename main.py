@@ -19,6 +19,8 @@ def main():
     )
     grid = Grid()
     shuffle_button = Button("Shuffle")
+    deselect_button = Button("Deselect All")
+
     selected_count = 0
     while running:
         for event in pygame.event.get():
@@ -35,10 +37,17 @@ def main():
                             selected_count -= 1
                 if shuffle_button.rect.collidepoint(pygame.mouse.get_pos()):
                     random.shuffle(grid.tiles)
+                if deselect_button.rect.collidepoint(pygame.mouse.get_pos()):
+                    for tile in grid.tiles:
+                        tile.selected = False
+                        selected_count = 0
 
         for tile in grid.tiles:
             tile.hovered = tile.rect.collidepoint(pygame.mouse.get_pos())
         shuffle_button.hovered = shuffle_button.rect.collidepoint(
+            pygame.mouse.get_pos()
+        )
+        deselect_button.hovered = deselect_button.rect.collidepoint(
             pygame.mouse.get_pos()
         )
 
@@ -52,6 +61,7 @@ def main():
             screen_mid_y - (grid.size[1] // 2),
         )
         shuffle_button.draw(screen, 400, 600)
+        deselect_button.draw(screen, 600, 600)
 
         pygame.display.flip()
 
@@ -108,7 +118,7 @@ class Button:
     def __init__(self, text) -> None:
         self.text = text
         self.height = 40
-        self.width = 100
+        self.width = 120
         self.rect = pygame.Rect()
         self.hovered = False
         self.dark = "#000000"
@@ -116,7 +126,7 @@ class Button:
         self.color = self.dark
 
     def draw(self, surface, x, y):
-        self.rect = pygame.Rect(x, y, 100, 40)
+        self.rect = pygame.Rect(x, y, self.width, self.height)
         font = pygame.font.SysFont(None, 20)
         text_color = self.light if self.hovered else self.dark
         pygame.draw.rect(

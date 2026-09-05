@@ -31,7 +31,6 @@ def main():
                         elif tile.selected:
                             tile.selected = False
                             selected_count -= 1
-                        print(selected_count)
 
         for tile in grid.tiles:
             tile.hovered = tile.rect.collidepoint(pygame.mouse.get_pos())
@@ -79,6 +78,21 @@ class Tile:
             self.color,
             self.rect,
             border_radius=6,
+        )
+
+        font = pygame.font.SysFont(None, 20)
+        text_color = "#FFFFFF" if self.selected else "#000000"
+        self.text_surface = font.render(self.text, True, text_color)
+        text_width, text_height = (
+            self.text_surface.get_width(),
+            self.text_surface.get_height(),
+        )
+        surface.blit(
+            self.text_surface,
+            (
+                x + (self.box_size - text_width) // 2,
+                y + (self.box_size - text_height) // 2,
+            ),
         )
 
 

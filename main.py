@@ -18,6 +18,7 @@ def main():
         "Create four groups of four", True, "#999999"
     )
     grid = Grid()
+    shuffle_button = Button("Shuffle")
     selected_count = 0
     while running:
         for event in pygame.event.get():
@@ -32,12 +33,14 @@ def main():
                         elif tile.selected:
                             tile.selected = False
                             selected_count -= 1
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_TAB:
+                if shuffle_button.rect.collidepoint(pygame.mouse.get_pos()):
                     random.shuffle(grid.tiles)
 
         for tile in grid.tiles:
             tile.hovered = tile.rect.collidepoint(pygame.mouse.get_pos())
+        shuffle_button.hovered = shuffle_button.rect.collidepoint(
+            pygame.mouse.get_pos()
+        )
 
         screen.fill("#FFFFFF")
         screen.blit(connections_text, connections_text.get_rect(topleft=(32, 32)))
@@ -48,6 +51,7 @@ def main():
             screen_mid_x - (grid.size[0] // 2),
             screen_mid_y - (grid.size[1] // 2),
         )
+        shuffle_button.draw(screen, 400, 600)
 
         pygame.display.flip()
 
@@ -96,6 +100,38 @@ class Tile:
             (
                 x + (self.box_size - text_width) // 2,
                 y + (self.box_size - text_height) // 2,
+            ),
+        )
+
+
+class Button:
+    def __init__(self, text) -> None:
+        self.text = text
+        self.height = 40
+        self.width = 100
+        self.rect = pygame.Rect()
+        self.hovered = False
+        self.dark = "#000000"
+        self.light = "#FFFFFF"
+        self.color = self.dark
+
+    def draw(self, surface, x, y):
+        self.rect = pygame.Rect(x, y, 100, 40)
+        font = pygame.font.SysFont(None, 20)
+        text_color = self.light if self.hovered else self.dark
+        pygame.draw.rect(
+            surface,
+            self.color,
+            self.rect,
+            border_radius=20,
+            width=0 if self.hovered else 2,
+        )
+        text = font.render(self.text, True, text_color)
+        surface.blit(
+            text,
+            (
+                x + (self.width - text.get_width()) // 2,
+                y + (self.height - text.get_height()) // 2,
             ),
         )
 

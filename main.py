@@ -32,30 +32,9 @@ def main():
 
     buttons = [shuffle_button, deselect_button, submit_button]
 
-    def shuffle_tiles():
-        game_state.shuffle_unsolved_words()
-
-    def deselect_all():
-        game_state.clear_selection()
-
-    def submit():
-        if game_state.num_selected_words() == 4:
-            print(f"submitted {game_state.selected_words}")
-            for word_group in game_state.unsolved_groups:
-                selected_set = set(game_state.selected_words)
-                words_set = set(word_group.words)
-                if selected_set == words_set:
-                    game_state.solved_groups.append(word_group)
-                    game_state.unsolved_groups.pop(
-                        game_state.unsolved_groups.index(word_group)
-                    )
-                if len(selected_set.intersection(words_set)) == 3:
-                    print("One away")
-        game_state.clear_selection()
-
-    shuffle_button.connect(shuffle_tiles)
-    deselect_button.connect(deselect_all)
-    submit_button.connect(submit)
+    shuffle_button.connect(game_state.shuffle_words)
+    deselect_button.connect(game_state.clear_selection)
+    submit_button.connect(game_state.submit)
 
     while running:
         for event in pygame.event.get():
@@ -164,7 +143,7 @@ class GameState:
     def num_selected_words(self):
         return len(self.selected_words)
 
-    def shuffle_unsolved_words(self):
+    def shuffle_words(self):
         self.seed += 1
 
     def get_all_unsolved_words(self):
@@ -182,6 +161,20 @@ class GameState:
 
     def clear_selection(self):
         self.selected_words = []
+
+    def submit(self):
+        if self.num_selected_words() == 4:
+            print(f"submitted {self.selected_words}")
+            for word_group in self.unsolved_groups:
+                if set(self.selected_words) == set(word_group.words):
+                    self.solved_groups.append(word_group)
+                    self.unsolved_groups.pop(self.unsolved_groups.index(word_group))
+                if (
+                    len(set(self.selected_words).intersection(set(word_group.words)))
+                    == 3
+                ):
+                    print("One away")
+        self.clear_selection()
 
 
 class SolvedGroup:

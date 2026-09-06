@@ -53,13 +53,17 @@ def main():
                                 game_state.selected_words.index(tile.text)
                             )
                 for button in buttons:
-                    if button.rect.collidepoint(pygame.mouse.get_pos()):
-                        button.callback()
+                    if not button.disabled:
+                        if button.rect.collidepoint(pygame.mouse.get_pos()):
+                            button.callback()
 
         for tile in grid.tiles:
             tile.hovered = tile.rect.collidepoint(pygame.mouse.get_pos())
         for button in buttons:
             button.hovered = button.rect.collidepoint(pygame.mouse.get_pos())
+
+        deselect_button.disabled = game_state.num_selected_words() == 0
+        submit_button.disabled = game_state.num_selected_words() < 4
 
         screen.fill("#FFFFFF")
         screen.blit(connections_text, connections_text.get_rect(topleft=(32, 32)))
@@ -221,18 +225,28 @@ class Button:
         self.hovered = False
         self.dark = "#000000"
         self.light = "#FFFFFF"
+        self.disabled_color = "#999999"
         self.color = self.dark
+        self.disabled = False
 
     def draw(self, surface, x, y):
         self.rect = pygame.Rect(x, y, self.width, self.height)
         font = pygame.font.SysFont(None, 20)
-        text_color = self.light if self.hovered else self.dark
+        if self.disabled:
+            text_color = self.disabled_color
+            self.color = self.disabled_color
+        elif self.hovered:
+            text_color = self.light
+            self.color = self.dark
+        else:
+            text_color = self.dark
+            self.color = self.dark
         pygame.draw.rect(
             surface,
             self.color,
             self.rect,
             border_radius=20,
-            width=0 if self.hovered else 2,
+            width=0 if (self.hovered and not self.disabled) else 2,
         )
         text = font.render(self.text, True, text_color)
         surface.blit(
